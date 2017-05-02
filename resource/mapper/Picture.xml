@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.java.spring.dao.PictureDao'>
+	<insert id="addPicture" parameterType="com.java.spring.pojo.Picture">
+		insert into
+		TB_PICTURE(Id,URL,DISCRIPTION,CREATEDATE,USUERID,NAME)
+		values
+		(#{id},#{url},#{discription},#{createadate},#{userId},#{name})
+	</insert>
+    
+    <resultMap type="com.java.spring.vo.PictureVo" id="findPicturesAndUserInfo" >
+	    <id property="id" column="Id" />
+        <result property="url" column="URL"/>
+        <result property="discription" column="DISCRIPTION"/>
+        <result property="createadate" column="CREATEDATE"/>
+        <result property="userId" column="USUERID"/>
+        <result property="name" column="NAME"/>
+	</resultMap>
+<!--  resultMap="findPicturesAndUserInfo" -->
+	<select id="findPictures" parameterType="com.java.spring.pojo.Picture" resultMap="findPicturesAndUserInfo">
+	   SELECT
+		  pic.Id ,
+		  pic.URL,
+		  pic.DISCRIPTION,
+		  pic.CREATEDATE,
+		  pic.USUERID
+		FROM TB_PICTURE pic ORDER BY CREATEDATE DESC
+	</select>
+		<select id="findPicturessss" parameterType="com.java.spring.util.system.Page" resultMap="findPicturesAndUserInfo">
+	   SELECT
+		  pic.Id ,
+		  pic.URL,
+		  pic.DISCRIPTION,
+		  pic.CREATEDATE,
+		  pic.USUERID
+		FROM TB_PICTURE pic ORDER BY CREATEDATE DESC
+	</select>
+
+	<select id="findPictureTotalNumber" resultType="int">
+	   SELECT COUNT(ID)
+		FROM TB_PICTURE
+	</select>
+	
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.java.spring.dao.CommentsDao'>
+	<insert id="addComments" parameterType="com.java.spring.pojo.Comments">
+		insert into
+		TB_COMMENTS(ID,USERID,PICID,COMMENTSCONTENT,CREATETIME,MARKNUMBER,MARK)
+		values
+		(#{Id},#{userId},#{picId},#{commentsContent},#{createTime},#{markNumber},#{mark})
+	</insert>
+    <!-- <resultMap type="com.java.spring.vo.PictureVo" id="findPicturesAndUserInfo" >
+	    <id property="id" column="Id" />
+        <result property="url" column="URL"/>
+        <result property="discription" column="DISCRIPTION"/>
+        <result property="createadate" column="CREATEDATE"/>
+        <result property="userId" column="USUERID"/>
+        <result property="name" column="NAME"/>
+	</resultMap>
+ resultMap="findPicturesAndUserInfo"
+	<select id="findPictures" parameterType="com.java.spring.pojo.Picture" resultMap="findPicturesAndUserInfo">
+	   SELECT
+		  pic.Id ,
+		  pic.URL,
+		  pic.DISCRIPTION,
+		  pic.CREATEDATE,
+		  pic.USUERID
+		FROM TB_PICTURE pic ORDER BY CREATEDATE DESC
+	</select> -->
+	
+	<!-- <select id="findPictures" parameterType="com.java.spring.pojo.Picture" resultMap="findPicturesAndUserInfo">
+	   SELECT
+		  pic.Id ,
+		  pic.URL,
+		  pic.DISCRIPTION,
+		  pic.CREATEDATE,
+		  pic.USUERID,
+		  tu.LOGINNAME,
+		  tu.ID,
+		  ufo.HEADPICURL
+		FROM TB_PICTURE pic ,TB_USER tu,TB_USERINFO ufo WHERE pic.USUERID = tu.ID AND tu.ID = ufo.Id
+	</select> -->
+
+	
+	
+</mapper>

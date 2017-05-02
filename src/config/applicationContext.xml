@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"  xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd  
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+
+	<!-- 激活@Controller模式 -->
+	<mvc:annotation-driven />
+	<!-- 对包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 需要更改 -->
+	<context:component-scan base-package="com.java.spring" />
+	<aop:aspectj-autoproxy/>
+	<!-- 引入同文件夹下的redis属性配置文件 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+			<value>classpath:**/redis.properties</value>
+				<value>classpath:**/database.properties</value>
+			</list>
+		</property>
+	</bean>
+	<import resource="redis-context.xml" />
+	<bean name="writeDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${database.driverClassName}" />
+		<property name="url" value="${database.url}" />
+		<property name="username" value="${database.username}" />
+		<property name="password" value="${database.password}" />
+		<property name="maxActive" value="500" />
+		<property name="maxIdle" value="10000"/>
+		<property name="maxWait" value="1000"/>
+		<property name="removeAbandoned" value="true"/>
+		<property name="removeAbandonedTimeout" value="180"/>
+		<property name="logAbandoned" value="true" />
+	</bean>
+		<bean name="readDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${database.driverClassName}" />
+		<property name="url" value="jdbc:mysql://192.168.1.108:3306/csfootball" />
+		<property name="username" value="root" />
+		<property name="password" value="123456zfq" />
+		<property name="maxActive" value="500" />
+		<property name="maxIdle" value="10000"/>
+		<property name="maxWait" value="1000"/>
+		<property name="removeAbandoned" value="true"/>
+		<property name="removeAbandonedTimeout" value="180"/>
+		<property name="logAbandoned" value="true" />
+	</bean>
+	<bean id="dataSource" class="com.java.spring.util.dynamicDataSource.DynamicDataSource">
+        <property name="targetDataSources">  
+              <map key-type="java.lang.String">  
+                  <!-- write -->
+                 <entry key="write" value-ref="writeDataSource"/>  
+                 <!-- read -->
+                 <entry key="read" value-ref="readDataSource"/>  
+              </map>  
+              
+        </property>  
+        <property name="defaultTargetDataSource" ref="writeDataSource"/>  
+    </bean>
+	
+	<!-- sptring+mybatis -->
+	<!--３.配置SqlSessionFactory对象 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="configLocation" value="classpath:/mybatis.xml"></property>
+		<!--注入数据库连接池 -->
+		<property name="dataSource" ref="dataSource" />
+		<!--扫描sql配置文件:mapper需要的xml文件 -->
+		<property name="mapperLocations" value="classpath:mapper/*.xml" />
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.java.spring.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+	
+    <!-- 配置数据库注解aop -->
+    <bean id="dataSourceAspect" class="com.java.spring.util.aspect.DataSourceAspect" />
+    <aop:config>
+        <aop:aspect id="c" ref="dataSourceAspect">
+            <aop:pointcut id="tx" expression="execution(* com.java.spring.serviceImpl..*.*(..))"/>
+            <aop:before pointcut-ref="tx" method="before"/>
+        </aop:aspect>
+    </aop:config>
+    
+	<!--配置事物管理器 -->
+	<!--只有抛出runtime异常才会回滚 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!--注入数据库连接池 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+	
+	
+</beans>

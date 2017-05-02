@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.java.spring.dao.UserDao'>
+	<insert id="addUser" parameterType="com.java.spring.pojo.User">
+		insert into
+		TB_USER(ID,EMAIL,IDNUMBER,BIRTHDATE,LASTLOGINDATE,LOGINNAME,MOBILE,NAME,PASSPHRASE,REGISTERDATE,SALT)
+		values
+		(#{id},#{email},#{IdNumber},#{birthDate},#{lastLoginDate},#{loginName},
+		#{mobile},#{name},#{passPhrase},#{registerDate},#{salt})
+	</insert>
+
+	<select id="getUserByMobilefromSql" parameterType="String"
+		resultType="com.java.spring.pojo.User">
+		SELECT
+		ID,
+		EMAIL,
+		IDNUMBER,
+		BIRTHDATE,
+		LASTLOGINDATE,
+		LOGINNAME,
+		MOBILE,
+		NAME,
+		PASSPHRASE,
+		REGISTERDATE,
+		SALT FROM TB_USER WHERE
+		<if test="_parameter!= null">
+			MOBILE=#{_parameter}
+		</if>
+	</select>
+	<update id="forgetPassword" parameterType="com.java.spring.pojo.User">
+		update TB_USER
+			<set> 
+				<if test="email !=null">EMAIL= #{email},</if>
+				<if test="IdNumber !=null">IDNUMBER=#{IdNumber},</if>
+				<if test="birthDate !=null">BIRTHDATE=#{birthDate},</if>
+				<if test="name !=null">NAME=#{name},</if>
+				<if test="passPhrase !=null">PASSPHRASE=#{passPhrase},</if>
+				<if test="registerDate !=null">REGISTERDATE=#{registerDate},</if>
+				<if test="lastLoginDate !=null">LASTLOGINDATE=#{lastLoginDate}</if>
+			</set>
+        where MOBILE = #{mobile}
+	</update>
+	
+</mapper>

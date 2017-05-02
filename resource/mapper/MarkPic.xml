@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.java.spring.dao.MarkPicDao'>
+	<insert id="addMarkPic" parameterType="com.java.spring.pojo.MarkPic">
+		insert into
+		TB_MARKPIC(ID,USERID,PICID)
+		values
+		(#{Id},#{userId},#{picId})
+	</insert>
+	
+	<delete id="deleteMarkPic" parameterType="com.java.spring.pojo.MarkPic">
+	   DELETE FROM TB_MARKPIC WHERE USERID = #{userId} AND  PICID = #{picId}
+	</delete>
+	<select id="getMarkNumber" parameterType="string" resultType="int">
+	   SELECT COUNT(ID) FROM TB_MARKPIC WHERE PICID=#{picId}
+	</select>
+
+    <resultMap type="com.java.spring.vo.PictureVo" id="getUserAllInfoAndMarkNumber" >
+	    <id property="id" column="Id" />
+        <result property="markNumber" column="markNumber"/>
+        <association property="user" javaType="com.java.spring.pojo.User">
+	        <id property="Id" column="ID"/>
+	        <result property="loginName" column="LOGINNAME"/>
+	        <result property="headPicUrl" column="HEADPICURL"/>
+        </association>
+	</resultMap>
+	
+	<select id="getUserAllInfoAndMarkNumber" parameterType="string" resultMap="getUserAllInfoAndMarkNumber">
+			select COUNT(mar.id)as markNumber, tur.HEADPICURL,tur.LOGINNAME from TB_USER  tur
+					LEFT JOIN TB_MARKPIC mar  
+					ON tur.ID = (SELECT pic.USUERID FROM TB_PICTURE pic WHERE pic.Id = #{picId})
+					AND mar.PICID = #{picId}
+	</select>
+	
+	<select id="getMarkStatus" parameterType="string" resultType="int">
+	   SELECT
+		 COUNT(ID) FROM TB_MARKPIC WHERE PICID=#{0} AND USERID = #{1} 
+	</select>
+</mapper>
